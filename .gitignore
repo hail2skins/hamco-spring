@@ -1,0 +1,19 @@
+# Local configuration and secrets (only .env.example is safe to track).
+.env
+.env.*
+!.env.example
+
+# Maven, Vite, and test-generated output.
+backend/target/
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/test-results/
+frontend/playwright-report/
+
+# Editor, OS, and agent scratch state.
+.DS_Store
+.idea/
+.vscode/
+.hermes/
+*.iml

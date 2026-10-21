@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: hamco-api
+  datasource:
+    # This is the isolated local development database, never the ASP.NET one.
+    # Tests replace these details with a disposable Testcontainers PostgreSQL.
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/hamco_spring_dev}
+    username: ${SPRING_DATASOURCE_USERNAME:art}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    hibernate:
+      # Flyway owns schema changes; Hibernate only checks our mapping later.
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
