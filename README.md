@@ -1,12 +1,13 @@
 # HAMCO Spring Boot rewrite
 
-This repository is recreating the running [HAMCO ASP.NET site](https://hamcois.com/) and its [source repository](https://github.com/hail2skins/hamco-aspnet) with a Spring Boot API and, later, a React/TypeScript frontend. We are learning Spring through **strict red–green–refactor TDD**, with educational comments in code and tests. **The first local backend slice is running; the frontend has not been scaffolded.**
+This repository is recreating the running [HAMCO ASP.NET site](https://hamcois.com/) and its [source repository](https://github.com/hail2skins/hamco-aspnet) with a Spring Boot API and, later, a React/TypeScript frontend. We are learning Spring through **strict red–green–refactor TDD**, with educational comments in code and tests. **The local API layer is implemented; the frontend has not been scaffolded.**
 
 ## Start here
 
 - [ASP.NET → Spring/React parity plan](docs/HAMCO_SPRING_PARITY_PLAN.md) — source inventory, API/page mapping, proposed project structure, configuration mapping, and small TDD slices.
 - [HAM Jira ticket map](docs/HAM_JIRA_TICKETS.md) — one ticket per parity step, with completed setup split into three early HAMs; Railway tickets are deferred.
 - [Observed runtime parity baseline](docs/parity-matrix.md) — read-only public HTTP evidence from the running ASP.NET site, with unverified areas labeled.
+- [Local API contract and verification](docs/API_CONTRACT.md) — all implemented routes, authentication modes, intentional security deviations, and test/runtime evidence.
 - [Project idea](IDEA.md) — original scope.
 - [Working reference site](https://hamcois.com/) — use public/read-only checks for runtime parity; never exercise write endpoints on production merely to test a rewrite.
 
@@ -64,7 +65,7 @@ psql -d hamco_spring_dev -c "select count(*) as public_tables from pg_tables whe
 
 The backend uses this DB for local development and disposable Testcontainers PostgreSQL 16 for integration tests; the tests never write to `hamco_spring_dev`. Configuration defaults are in `backend/src/main/resources/application.yml` and can be overridden with `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` (environment variables; no automatic dotenv loader). Do not reuse the development DB as a test DB or copy password-like values from the ASP.NET example into the repo.
 
-### Run and test the first local API slice
+### Run and test the local API
 
 From the repository root (start Docker Desktop first if it is stopped):
 
@@ -81,11 +82,13 @@ curl -i http://localhost:8080/actuator/health
 curl -i http://localhost:8080/api/notes
 curl -i http://localhost:8080/api/notes/1
 curl -i http://localhost:8080/api/notes/999999
+curl -i http://localhost:8080/api/auth/profile  # 401 without a token
+curl -i http://localhost:8080/api/slogans       # 401 without admin auth
 ```
 
-Observed on October 21, 2026: health **200 UP**; list **200** JSON with one local demonstration note; detail `/1` **200** with the seven source-compatible fields (`id`, `title`, `slug`, `content`, `userId`, `createdAt`, `updatedAt`); unknown ID **404**. The API is currently **read-only**: no registration, admin mutation, authentication, or React UI exists yet. A real HTTP request was made to the running Spring server after the tests passed—this is not merely a test-suite claim.
+After the full API suite passed (39 tests), a **separate newly packaged process** on `127.0.0.1:18080` returned health **200 UP**, notes list/detail **200**, missing note **404**, unauthenticated profile/slogans/key management **401**, invalid API key **401**, and registration-disabled **403**. Flyway reached migration V3 on `hamco_spring_dev`. The older process on port **8080 was not restarted**; check which version it serves before evaluating. The notes sample in the local database is labeled demonstration data, not production content. Positive registration → verification → login → notes/slogans/key-management flows run against disposable PostgreSQL in integration tests; see the [API contract](docs/API_CONTRACT.md).
 
-The TDD sequence for this slice was observable: the context test first failed because `HamcoApiApplication` did not exist; the migration test failed because domain tables did not exist; the notes HTTP tests failed with 404 before the controller was written. Each was rerun green after minimal code was added. SQL fixture data in tests lives inside a throwaway container, while the explicitly labeled demonstration note is in `hamco_spring_dev`.
+The TDD sequence began with failing context, migration and public-notes tests; auth, admin writes, slogans, API keys, email and security contracts were added red before implementation. The key-lookup and invalid-presented-key regressions were reproduced red, then fixed green. Tests use disposable containers and never write to `hamco_dev`. For environment variables, see [`.env.example`](.env.example); Spring does not load a dotenv file automatically. Registration is off by default, and the local email sink captures verification links in memory for tests. A human inbox test requires configured Mailjet credentials; none are committed.
 
 ### Railway later—not part of local development
 
@@ -95,6 +98,6 @@ When deployment work is authorized, assess reusing the existing Railway dev and 
 
 ## Current milestone and next boundary
 
-The pinned ASP.NET source contains an apparently truncated `ApiKeyService.cs`; compare the **running live site** against our local API whenever source and behavior disagree. Unsafe source behaviors remain proposed security deviations in the plan, not implemented or silently approved here.
+The pinned ASP.NET source contains an apparently truncated `ApiKeyService.cs`; compare the **running live site** against our local API whenever source and behavior disagree. The [API contract](docs/API_CONTRACT.md) records where unsafe source behavior was deliberately changed. Production checks remain read-only.
 
-**Milestone reached:** Spring Boot 4.1.1 starts against isolated local PostgreSQL, Flyway owns the schema, `GET /api/notes` and `GET /api/notes/{id}` serve database-backed JSON, and the tests use disposable PostgreSQL. Next work can fill out the remaining API and React UI under their HAM tickets. The frontend, write endpoints, security, email, and Railway deployments are intentionally not part of this first demonstration.
+**API milestone:** Spring Boot 4.1.1 serves registration/login/verification/reset/profile/cookie/logout, public and admin notes, admin slogans, and owner-scoped API-key management/authentication with strict access control. Tests cover real Spring HTTP dispatch, database migrations and full local auth flows. The React/MVC pages and Railway environments are **not** part of this API-only marker. A push of code does not deploy the service.

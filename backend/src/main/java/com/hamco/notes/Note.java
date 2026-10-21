@@ -51,6 +51,24 @@ public class Note {
         // Application callers should use services, not instantiate DB records.
     }
 
+    Note(String title, String slug, String content, String userId, Instant createdAt) {
+        this.title = title;
+        this.slug = slug;
+        this.content = content;
+        this.userId = userId;
+        this.createdAt = createdAt;
+        this.updatedAt = createdAt;
+    }
+
+    void revise(String title, String slug, String content, Instant updatedAt) {
+        // An edit changes the derived URL slug but never rewrites ownership or
+        // the original creation instant. JPA flushes these tracked changes.
+        this.title = title;
+        this.slug = slug;
+        this.content = content;
+        this.updatedAt = updatedAt;
+    }
+
     public Integer getId() { return id; }
     public String getTitle() { return title; }
     public String getSlug() { return slug; }
