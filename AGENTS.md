@@ -1,0 +1,9 @@
+# Repository working agreements
+
+- Follow strict TDD for every code change: write and run a failing test, implement the minimum change, then rerun tests to verify green.
+- Write educational comments in tests and code that explain behavior, framework concepts, and non-obvious decisions.
+- Work local-first on the current branch while the Spring/React app is being built and verified locally. Do not create dev/prod branches, configure Railway, or deploy until Art explicitly starts that phase. Git pushes do not imply deployment, but still update a remote: never push unless Art explicitly asks. The Jira project key is `HAM`; every commit message must contain its real `HAM-<number>` ticket identifier. Do not invent a ticket key.
+- Use `.hermes/plans/` for internal execution plans, but put significant project documentation in a visible, discoverable repository path (`docs/` and a README link) and/or the project's Second Brain vault. Do not leave the only copy in a hidden agent directory.
+- The repository copy of the ASP.NET → Spring/React parity plan is `docs/HAMCO_SPRING_PARITY_PLAN.md`. The Second Brain mirror is under `Projects/Hamco Blog/docs/Hamco Spring Boot Parity Plan.md`. Keep these aligned when revising the plan; the repository copy is canonical.
+- Do not modify the existing local `hamco_dev` database. Use the dedicated `hamco_spring_dev` database for local development and isolated test databases/containers. When deployment work is authorized, first assess safe side-by-side reuse of the existing Railway dev and production PostgreSQL services; do not provision replacements or run migrations against existing ASP.NET tables by default.
+- Treat `https://hamcois.com/` as the live runtime parity reference. Production checks must be read-only; compare against source code but do not exercise write endpoints as tests.
