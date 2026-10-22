@@ -1,6 +1,6 @@
 # HAMCO Spring Boot rewrite
 
-This repository is recreating the running [HAMCO ASP.NET site](https://hamcois.com/) and its [source repository](https://github.com/hail2skins/hamco-aspnet) with a Spring Boot API and, later, a React/TypeScript frontend. We are learning Spring through **strict red–green–refactor TDD**, with educational comments in code and tests. **The local API layer is implemented; the frontend has not been scaffolded.**
+This repository recreates the running [HAMCO ASP.NET site](https://hamcois.com/) and its [source repository](https://github.com/hail2skins/hamco-aspnet) with a Spring Boot API and React/TypeScript frontend. We are learning Spring through **strict red–green–refactor TDD**, with educational comments in code and tests. Both layers are implemented and exercised locally; Railway deployment remains deferred.
 
 ## Start here
 
@@ -8,6 +8,7 @@ This repository is recreating the running [HAMCO ASP.NET site](https://hamcois.c
 - [HAM Jira ticket map](docs/HAM_JIRA_TICKETS.md) — one ticket per parity step, with completed setup split into three early HAMs; Railway tickets are deferred.
 - [Observed runtime parity baseline](docs/parity-matrix.md) — read-only public HTTP evidence from the running ASP.NET site, with unverified areas labeled.
 - [Local API contract and verification](docs/API_CONTRACT.md) — all implemented routes, authentication modes, intentional security deviations, and test/runtime evidence.
+- [Local React UI milestone](docs/UI_MILESTONE.md) — page/route inventory, browser verification, visual approach, credentials boundary, and known limitations.
 - [Project idea](IDEA.md) — original scope.
 - [Working reference site](https://hamcois.com/) — use public/read-only checks for runtime parity; never exercise write endpoints on production merely to test a rewrite.
 
@@ -21,7 +22,7 @@ The host is Apple Silicon macOS. Versions observed after setup:
 | --- | --- | --- |
 | Homebrew `openjdk@25` | Java and `javac` **25.0.5** | Pinned Java 25; do not rely on Homebrew's rolling `openjdk` (it also installed Java 27 as a Maven dependency). |
 | Maven | **3.10.0**, running with Java **25.0.5** | The backend includes a Maven Wrapper (`backend/mvnw`) to pin the build tool. |
-| Node / npm | **24.18.0 / 11.16.0** | Bootstrap and build Vite + React/TypeScript. Project-specific dependencies will be locked when scaffolded, not installed globally. |
+| Node / npm | **24.18.0 / 11.16.0** | Build the locked Vite + React/TypeScript frontend. |
 | PostgreSQL client/server | **16.11**, `pg_isready` accepts connections on localhost:5432 | Local development. |
 | Docker Desktop | Docker client/server **29.9.2** at setup verification; `docker run --rm hello-world` succeeded | Runs the disposable PostgreSQL containers used by backend integration tests. |
 | Spring Boot | **4.1.1** | Generated from official Spring Initializr; Java 25 and Maven Wrapper. |
@@ -63,7 +64,7 @@ psql -d hamco_spring_dev -c 'select current_database(), current_user;'
 psql -d hamco_spring_dev -c "select count(*) as public_tables from pg_tables where schemaname='public';"
 ```
 
-The backend uses this DB for local development and disposable Testcontainers PostgreSQL 16 for integration tests; the tests never write to `hamco_spring_dev`. Configuration defaults are in `backend/src/main/resources/application.yml` and can be overridden with `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` (environment variables; no automatic dotenv loader). Do not reuse the development DB as a test DB or copy password-like values from the ASP.NET example into the repo.
+The backend uses this DB for local development and disposable Testcontainers PostgreSQL 16 for integration tests; the backend tests never write to `hamco_spring_dev`. The optional real-browser admin tests **do** use the local development DB and clean up their notes/slogans while leaving revoked audit records. Configuration defaults are in `backend/src/main/resources/application.yml` and can be overridden with `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` (environment variables; no automatic dotenv loader). Do not reuse `hamco_dev` or copy password-like values from the ASP.NET example into the repo.
 
 ### Run and test the local API
 
@@ -90,6 +91,22 @@ After the full API suite passed (39 tests), a **separate newly packaged process*
 
 The TDD sequence began with failing context, migration and public-notes tests; auth, admin writes, slogans, API keys, email and security contracts were added red before implementation. The key-lookup and invalid-presented-key regressions were reproduced red, then fixed green. Tests use disposable containers and never write to `hamco_dev`. For environment variables, see [`.env.example`](.env.example); Spring does not load a dotenv file automatically. Registration is off by default, and the local email sink captures verification links in memory for tests. A human inbox test requires configured Mailjet credentials; none are committed.
 
+### Run and test the local UI
+
+With the Spring API running on port **18080**, start the Vite client in another shell:
+
+```bash
+cd frontend
+npm ci
+npm run dev -- --port 5173
+# Open http://127.0.0.1:5173/
+npm test && npm run typecheck && npm run build
+npx playwright install chromium
+npm run test:e2e
+```
+
+The proxy target is configured in `frontend/vite.config.ts`; launching Spring on its default port **8080** instead will not satisfy this local frontend configuration. Registration remains disabled by default, but its screen uses `GET /api/site/config` to reflect the backend flag. See [the UI milestone](docs/UI_MILESTONE.md) for admin-browser fixture requirements, route coverage and security boundaries. No local admin password or API key belongs in Git.
+
 ### Railway later—not part of local development
 
 The current phase is **local implementation and verification only** on the existing branch. No dev/prod branch creation, Railway configuration, or deployment is planned until Art starts that phase. A Git push updates the remote repository but does not itself mean deployment; pushes still require Art's explicit instruction, and commits require a relevant Jira identifier.
@@ -100,4 +117,4 @@ When deployment work is authorized, assess reusing the existing Railway dev and 
 
 The pinned ASP.NET source contains an apparently truncated `ApiKeyService.cs`; compare the **running live site** against our local API whenever source and behavior disagree. The [API contract](docs/API_CONTRACT.md) records where unsafe source behavior was deliberately changed. Production checks remain read-only.
 
-**API milestone:** Spring Boot 4.1.1 serves registration/login/verification/reset/profile/cookie/logout, public and admin notes, admin slogans, and owner-scoped API-key management/authentication with strict access control. Tests cover real Spring HTTP dispatch, database migrations and full local auth flows. The React/MVC pages and Railway environments are **not** part of this API-only marker. A push of code does not deploy the service.
+**Local API + UI milestone:** Spring Boot 4.1.1 serves auth, notes, slogans, and owner-scoped API-key management with strict access control. React serves the public, auth and admin page routes over a local Vite proxy with the reference site's layout. Tests cover Spring dispatch/migrations and local desktop/mobile browser flows. Real inbox delivery, packaging React into a single Spring artifact, and Railway environments remain separate follow-up work; a Git push does not deploy the service.
