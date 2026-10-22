@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, expect, test, vi } from 'vitest';
 import App from './App';
@@ -71,4 +72,13 @@ test('footer preserves the reference social icon structure', () => {
   expect(document.querySelector('footer .fa-twitter')).toBeInTheDocument();
   expect(document.querySelector('footer .fa-linkedin-in')).toBeInTheDocument();
   expect(document.querySelector('footer .fa-github')).toBeInTheDocument();
+});
+
+test('admin-capable pages execute no remote scripts and render self-contained social icons', () => {
+  // A third-party script on the login page could read passwords, JWTs or the
+  // one-time API key. Keep the icon code inside our own Vite bundle instead.
+  const html = readFileSync('index.html', 'utf8');
+  expect(html).not.toMatch(/<script[^>]+src=["']https?:\/\//i);
+  render(<MemoryRouter initialEntries={['/auth/login']}><App /></MemoryRouter>);
+  expect(document.querySelectorAll('footer svg')).toHaveLength(6);
 });

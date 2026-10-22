@@ -1,6 +1,6 @@
 # Local React UI milestone
 
-The Vite/React frontend recreates the public and account/admin page paths from the pinned ASP.NET source (`c9b49be9aff2ac161c083fa225bf9c4176561e9d`). The production site was inspected **read-only** as the visual reference; the copied source stylesheet and four hamster masthead images live under `frontend/src/styles/source.css` and `frontend/public/img/`. React-specific corrections live in `frontend/src/styles/app.css`. The masthead rotates active slogans returned by Spring, and the footer uses the reference site's Font Awesome glyphs. Fonts/icons require the same external Google Fonts/Font Awesome resources as the source site.
+The Vite/React frontend recreates the public and account/admin page paths from the pinned ASP.NET source (`c9b49be9aff2ac161c083fa225bf9c4176561e9d`). The production site was inspected **read-only** as the visual reference; the copied source stylesheet and four hamster masthead images live under `frontend/src/styles/source.css` and `frontend/public/img/`. React-specific corrections live in `frontend/src/styles/app.css`. The masthead rotates active slogans returned by Spring. The reference site's Font Awesome footer glyphs are now bundled from the free icon packages (Font Awesome by Fonticons, Inc., CC BY 4.0/MIT) rather than loaded as cross-origin JavaScript on login/admin pages. Google Fonts stylesheets remain external and are not executable scripts.
 
 ## Page surface
 

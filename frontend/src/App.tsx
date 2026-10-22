@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate, useParams } from 'react-router';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGithub, faLinkedinIn, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
@@ -28,9 +31,9 @@ function useNotes() {
 function Footer() {
   return <footer className="border-top"><div className="container px-4 px-lg-5"><div className="row gx-4 gx-lg-5 justify-content-center"><div className="col-md-10 col-lg-10 col-xl-8">
     <ul className="list-inline text-center">
-      <li className="list-inline-item"><a aria-label="Twitter" href="https://twitter.com/TechFocusedGeek"><span className="fa-stack fa-lg"><i className="fas fa-circle fa-stack-2x" /><i className="fab fa-twitter fa-stack-1x fa-inverse" /></span></a></li>
-      <li className="list-inline-item"><a aria-label="LinkedIn" href="https://www.linkedin.com/in/art-mills-2415a33/"><span className="fa-stack fa-lg"><i className="fas fa-circle fa-stack-2x" /><i className="fab fa-linkedin-in fa-stack-1x fa-inverse" /></span></a></li>
-      <li className="list-inline-item"><a aria-label="GitHub" href="https://github.com/hail2skins"><span className="fa-stack fa-lg"><i className="fas fa-circle fa-stack-2x" /><i className="fab fa-github fa-stack-1x fa-inverse" /></span></a></li>
+      <li className="list-inline-item"><a aria-label="Twitter" href="https://twitter.com/TechFocusedGeek"><span className="fa-stack fa-lg"><FontAwesomeIcon icon={faCircle} className="fa-stack-2x" /><FontAwesomeIcon icon={faTwitter} className="fa-twitter fa-stack-1x fa-inverse" /></span></a></li>
+      <li className="list-inline-item"><a aria-label="LinkedIn" href="https://www.linkedin.com/in/art-mills-2415a33/"><span className="fa-stack fa-lg"><FontAwesomeIcon icon={faCircle} className="fa-stack-2x" /><FontAwesomeIcon icon={faLinkedinIn} className="fa-linkedin-in fa-stack-1x fa-inverse" /></span></a></li>
+      <li className="list-inline-item"><a aria-label="GitHub" href="https://github.com/hail2skins"><span className="fa-stack fa-lg"><FontAwesomeIcon icon={faCircle} className="fa-stack-2x" /><FontAwesomeIcon icon={faGithub} className="fa-github fa-stack-1x fa-inverse" /></span></a></li>
     </ul>
     <div className="small text-center text-muted fst-italic">Copyright © Hamco Internet Solutions {new Date().getFullYear()}</div>
   </div></div></div></footer>;
