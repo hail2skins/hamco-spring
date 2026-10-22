@@ -19,8 +19,10 @@ The HTML/MVC pages and React client are separate frontend work, not API routes.
 | POST | `/api/auth/cookie` | Public with valid JWT in body | 200; HttpOnly, SameSite=Strict auth cookie. |
 | GET | `/api/auth/logout` | Public | 302 to `/`, clears cookie. |
 | GET | `/api/notes` and `/api/notes/{id}` | Public | 200 published notes; 404 unknown ID. |
+| GET | `/api/site/config` | Public | 200 `{ "registrationEnabled": false }` by default; reflects `ALLOW_REGISTRATION`, without revealing secrets. |
+| GET | `/api/site/slogan` | Public | 200 `{ "text": "..." }` with a random active slogan or the site's fallback. |
 | POST | `/api/notes` | Admin JWT or admin API key | 201 and Location; validates title/content, generates slug. |
-| PUT, DELETE | `/api/notes/{id}` | Admin JWT or admin API key | 200 updated, 204 deleted, 404 unknown ID. Delete is soft. |
+| PUT, DELETE | `/api/notes/{id}` | Admin JWT or admin API key | 200 updated, 204 deleted, 404 unknown ID. Delete is hard; the nullable `deleted_at` column remains for legacy compatibility. |
 | GET, POST | `/api/slogans` | Admin JWT or admin API key | 200 list, 201 create; validates text. |
 | PUT, DELETE | `/api/slogans/{id}` | Admin JWT or admin API key | 200 updated, 204 deleted, 404 unknown ID. |
 | GET | `/api/admin/api-keys` and `/{id}` | Admin **user JWT** | Owner-scoped metadata; never reveals raw key/hash. |
@@ -69,7 +71,8 @@ to disabled (`ALLOW_REGISTRATION=false`). A blank `JWT_KEY` generates an
 and Mailjet credentials before any real deployment. No Railway work is part
 of this milestone.
 
-At the API milestone the 39-test suite passed, and a separate packaged server
+At the API milestone the 39-test suite passed; after the public site routes
+were added, the backend suite reached 45 passing tests. A separate packaged server
 on `127.0.0.1:18080` reported: health 200, notes list/detail 200, unknown note
 404, unauthenticated profile/slogans/key management 401, bad key 401, disabled
 registration 403. The existing process on port 8080 was left untouched; it may

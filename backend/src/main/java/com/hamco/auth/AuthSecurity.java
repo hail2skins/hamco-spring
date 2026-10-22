@@ -78,6 +78,8 @@ public class AuthSecurity {
         return http.csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a.requestMatchers("/api/auth/profile").authenticated()
+                        // Permit precisely the site display read, never public slogan mutations.
+                        .requestMatchers(HttpMethod.GET, "/api/site/slogan", "/api/site/config").permitAll()
                         .requestMatchers("/api/admin/**", "/api/slogans", "/api/slogans/**").hasRole("Admin")
                         .requestMatchers(HttpMethod.POST, "/api/notes", "/api/notes/**").hasRole("Admin")
                         .requestMatchers(HttpMethod.PUT, "/api/notes", "/api/notes/**").hasRole("Admin")

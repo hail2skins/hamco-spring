@@ -3,6 +3,7 @@ package com.hamco.slogans;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,14 @@ public class SloganService {
         // Admins see inactive entries too, sorted newest first as in ASP.NET.
         return slogans.findAllByOrderByCreatedAtDesc().stream()
                 .map(SloganResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public String randomActiveText() {
+        // Query on every read so admin changes become visible without stale cache entries.
+        List<String> active = slogans.findActiveTexts();
+        if (active.isEmpty()) return "Your trusted partner in Internet solutions";
+        return active.get(ThreadLocalRandom.current().nextInt(active.size()));
     }
 
     public SloganResponse create(SloganRequest request, String userId) {
