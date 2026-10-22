@@ -121,6 +121,53 @@
 
 	<build>
 		<plugins>
+			<!-- A package must be independently runnable: `mvn test` remains a
+			     backend-only loop, while `mvn package` installs from the lockfile,
+			     builds Vite and copies its output into the Boot classpath. -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.6.4</version>
+				<executions>
+					<execution>
+						<id>install-frontend</id>
+						<phase>prepare-package</phase>
+						<goals><goal>exec</goal></goals>
+						<configuration>
+							<workingDirectory>${project.basedir}/../frontend</workingDirectory>
+							<executable>npm</executable>
+							<arguments><argument>ci</argument></arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>build-frontend</id>
+						<phase>prepare-package</phase>
+						<goals><goal>exec</goal></goals>
+						<configuration>
+							<workingDirectory>${project.basedir}/../frontend</workingDirectory>
+							<executable>npm</executable>
+							<arguments><argument>run</argument><argument>build</argument></arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>embed-frontend</id>
+						<phase>prepare-package</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+							<resources>
+								<resource><directory>${project.basedir}/../frontend/dist</directory><filtering>false</filtering></resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

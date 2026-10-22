@@ -9,6 +9,7 @@ This repository recreates the running [HAMCO ASP.NET site](https://hamcois.com/)
 - [Observed runtime parity baseline](docs/parity-matrix.md) — read-only public HTTP evidence from the running ASP.NET site, with unverified areas labeled.
 - [Local API contract and verification](docs/API_CONTRACT.md) — all implemented routes, authentication modes, intentional security deviations, and test/runtime evidence.
 - [Local React UI milestone](docs/UI_MILESTONE.md) — page/route inventory, browser verification, visual approach, credentials boundary, and known limitations.
+- [Release review and cutover gates](docs/RELEASE_READINESS.md) — packaged-JAR verification and the remaining data, first-admin, production-mail/configuration and API-key decisions.
 - [Project idea](IDEA.md) — original scope.
 - [Working reference site](https://hamcois.com/) — use public/read-only checks for runtime parity; never exercise write endpoints on production merely to test a rewrite.
 
@@ -107,6 +108,10 @@ npm run test:e2e
 
 The proxy target is configured in `frontend/vite.config.ts`; launching Spring on its default port **8080** instead will not satisfy this local frontend configuration. Registration remains disabled by default, but its screen uses `GET /api/site/config` to reflect the backend flag. See [the UI milestone](docs/UI_MILESTONE.md) for admin-browser fixture requirements, route coverage and security boundaries. No local admin password or API key belongs in Git.
 
+### Verify the standalone Spring JAR locally
+
+`cd backend && ./mvnw clean package` now installs the locked frontend dependencies, builds Vite, and embeds the result in the Spring Boot JAR. `python3 scripts/check_jar_ui.py` inspects that **JAR**, not a previously built `frontend/dist`. After starting the JAR against **only** `hamco_spring_dev` on a free local port (for example `java -jar target/hamco-api-0.0.1-SNAPSHOT.jar --server.port=18081`), run `HAMCO_PACKAGED_BASE_URL=http://127.0.0.1:18081 npx playwright test packaged.spec.ts` from `frontend/`. This browser configuration does not launch or proxy through Vite. See [release review](docs/RELEASE_READINESS.md) for exactly what passed and what still blocks replacement of the ASP.NET site.
+
 ### Railway later—not part of local development
 
 The current phase is **local implementation and verification only** on the existing branch. No dev/prod branch creation, Railway configuration, or deployment is planned until Art starts that phase. A Git push updates the remote repository but does not itself mean deployment; pushes still require Art's explicit instruction, and commits require a relevant Jira identifier.
@@ -115,6 +120,6 @@ When deployment work is authorized, assess reusing the existing Railway dev and 
 
 ## Current milestone and next boundary
 
-The pinned ASP.NET source contains an apparently truncated `ApiKeyService.cs`; compare the **running live site** against our local API whenever source and behavior disagree. The [API contract](docs/API_CONTRACT.md) records where unsafe source behavior was deliberately changed. Production checks remain read-only.
+The pinned ASP.NET `ApiKeyService.cs` is complete at the inspected commit; this does **not** prove that the entire upstream solution builds. Compare the **running live site** against our local API whenever source and behavior disagree. The [API contract](docs/API_CONTRACT.md) records where unsafe source behavior was deliberately changed. Production checks remain read-only.
 
-**Local API + UI milestone:** Spring Boot 4.1.1 serves auth, notes, slogans, and owner-scoped API-key management with strict access control. React serves the public, auth and admin page routes over a local Vite proxy with the reference site's layout. Tests cover Spring dispatch/migrations and local desktop/mobile browser flows. Real inbox delivery, packaging React into a single Spring artifact, and Railway environments remain separate follow-up work; a Git push does not deploy the service.
+**Local API + UI milestone:** Spring Boot 4.1.1 serves auth, notes, slogans, and owner-scoped API-key management with strict access control. React serves public, auth and admin pages both through Vite for development and from the standalone Spring JAR for local release checks. Tests cover Spring dispatch/migrations and desktop/mobile browser flows against the packaged server. Real inbox delivery, content/first-admin cutover, legacy API-key policy and Railway environments remain separate follow-up work; a Git push does not deploy the service.

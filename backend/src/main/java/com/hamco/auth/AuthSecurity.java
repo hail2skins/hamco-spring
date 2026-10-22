@@ -87,6 +87,12 @@ public class AuthSecurity {
                         .requestMatchers(HttpMethod.DELETE, "/api/notes", "/api/notes/**").hasRole("Admin")
                         .requestMatchers(HttpMethod.GET, "/api/notes", "/api/notes/**").permitAll()
                         .requestMatchers("/api/auth/**", "/actuator/health").permitAll()
+                        // Page URLs only serve the public SPA shell; React still
+                        // gates admin views and every admin API stays protected.
+                        .requestMatchers(HttpMethod.GET, "/", "/index.html", "/about", "/notes", "/notes/**",
+                                "/auth/**", "/admin/**", "/assets/**", "/img/**", "/error").permitAll()
+                        .requestMatchers(HttpMethod.HEAD, "/", "/index.html", "/about", "/notes", "/notes/**",
+                                "/auth/**", "/admin/**", "/assets/**", "/img/**", "/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                         .accessDeniedHandler((request, response, ex) -> response.sendError(403)))

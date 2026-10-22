@@ -43,5 +43,5 @@ Final local verification: **45 backend tests passed**, **27 frontend unit tests 
 ## Boundaries
 
 - The API suite uses disposable Testcontainers PostgreSQL and tests registration → verification → login, including fake mail transport. The React registration and verification pages have unit/contract coverage, but **a real end-to-end email inbox journey has not been verified** without configured mail delivery and registration enabled. Do not describe an unverified human inbox as complete.
-- The frontend runs under Vite locally. Packaging the built SPA into Spring for a single deployable artifact, configuring Railway, and production promotion are later phases and **not** part of this local UI milestone.
+- The original UI milestone ran under Vite. The later [HAM-19 release review](RELEASE_READINESS.md) packaged the SPA in a Spring JAR and exercised it in desktop/mobile browsers locally. Railway configuration, live-content/administrator cutover, real mail and production promotion remain deferred; the local artifact is **not** release approval.
 - Browser checks create data **only against the local Spring database**. The live ASP.NET reference is never a write-test target.
