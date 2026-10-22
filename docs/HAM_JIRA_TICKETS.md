@@ -22,5 +22,10 @@ These tickets implement the [ASP.NET → Spring/React parity plan](HAMCO_SPRING_
 | 13 | [HAM-16](https://hamcois.atlassian.net/browse/HAM-16) | Auth React pages and full local journeys | UI/login tested locally; real inbox journey unverified; Jira status unchanged |
 | 14 | [HAM-17](https://hamcois.atlassian.net/browse/HAM-17) | Railway dev with existing PostgreSQL | **Deferred** until Art authorizes Railway phase |
 | 15 | [HAM-18](https://hamcois.atlassian.net/browse/HAM-18) | Railway production and parity gate | **Deferred** until Art authorizes production phase |
+| Release review | [HAM-19](https://hamcois.atlassian.net/browse/HAM-19) | Package SPA in Spring JAR; safe deep-link fallback | Implemented/tested locally; no Railway; Jira status unchanged |
+| Release review | [HAM-20](https://hamcois.atlassian.net/browse/HAM-20) | Bundle social icons; remove third-party executable script | Implemented/tested locally; Jira status unchanged |
+| Cutover design | [HAM-21](https://hamcois.atlassian.net/browse/HAM-21) | Isolated notes migration and private first-admin bootstrap | **Deferred**; design/approval before production writes |
+| Release gate | [HAM-22](https://hamcois.atlassian.net/browse/HAM-22) | Activate/prove production JWT, mail and Secure cookie settings | **Deferred** until Art authorizes deployment phase |
+| Cutover decision | [HAM-23](https://hamcois.atlassian.net/browse/HAM-23) | Legacy API-key compatibility or owner-coordinated rotation | **Deferred**; decide based on active-key inventory |
 
 **Working rule:** keep code changes mapped to the relevant HAM ticket and include its actual key in each commit message. Start with local parity, not Railway. Push only when Art explicitly instructs it; Art explicitly authorized commits and pushes for this local workstream. If a planned slice proves too large, split it into smaller child tasks before implementation rather than turning one ticket into a catch-all.

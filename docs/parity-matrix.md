@@ -1,6 +1,6 @@
 # HAMCO parity baseline — HAM-5
 
-**Reference:** running site `https://hamcois.com/`, observed October 21, 2026. Source inspection pinned to `hail2skins/hamco-aspnet@c9b49be9aff2ac161c083fa225bf9c4176561e9d`. Source code and deployed runtime are distinct evidence: the pinned `ApiKeyService.cs` has a broken string and is not presumed buildable. All requests below were **public GETs only**; no production writes, login attempts, or private records were used.
+**Reference:** running site `https://hamcois.com/`, observed October 21, 2026. Source inspection pinned to `hail2skins/hamco-aspnet@c9b49be9aff2ac161c083fa225bf9c4176561e9d`. Source code and deployed runtime are distinct evidence: the pinned `ApiKeyService.cs` is complete (correcting an earlier truncation claim); the full solution's build has not been verified. All requests below were **public GETs only**; no production writes, login attempts, or private records were used.
 
 | GET route | Live HTTP / content type | Evidence / replication target |
 | --- | --- | --- |
@@ -18,4 +18,4 @@
 
 **Source-only contract, not yet runtime verified:** POST/PUT/DELETE status codes, auth cookie, JWT/API key permissions, slogans/admin flows, email verification/reset, schema and migrations. See the [plan](HAMCO_SPRING_PARITY_PLAN.md) for source paths and intended behavior. Do not probe production mutation endpoints just to fill these rows. Later local Spring tests must be red before implementation and green after, then compare the running local server with the observed public HTTP behavior.
 
-**Data migration decision:** not made; the local rewrite uses a separate empty `hamco_spring_dev` database and will not copy production content without separate authorization. For demo parity, tests or local fixtures can provide representative data without claiming it came from production.
+**Data migration decision:** not made; the local rewrite uses a separate Spring-owned `hamco_spring_dev` database with demonstration content and will not copy production content without separate authorization. For demo parity, tests or local fixtures can provide representative data without claiming it came from production. See [release gates](RELEASE_READINESS.md) for the real-content and first-admin decisions.

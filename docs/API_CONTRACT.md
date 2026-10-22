@@ -43,8 +43,11 @@ five-request/15-minute limit (429 and `Retry-After`), configurable in tests.
 - The source's eight-character key prefix is identical for every generated
   key. Spring keeps that *display* field for compatibility, but indexes a
   SHA-256 digest of the entire high-entropy secret and verifies BCrypt before
-  authorizing. A nullable legacy path permits keys issued before migration V3
-  to authenticate until rotated. No positive cache delays revocation.
+  authorizing. A nullable legacy path permits *Spring-issued* keys from before
+  migration V3 to authenticate until rotated: Spring BCrypt-hashes the SHA-256
+  digest, while ASP.NET BCrypt-hashes the **raw** key. Imported ASP.NET hashes
+  do **not** work as-is; decide a tested compatibility path or owner-coordinated
+  rotation under [HAM-23](RELEASE_READINESS.md). No positive cache delays revocation.
 - The source's key-management route can be guarded by an admin API key. Here
   it additionally requires a human admin JWT: an automation secret cannot
   create or enumerate further credentials.
